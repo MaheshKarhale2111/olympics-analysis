@@ -24,7 +24,7 @@ st.sidebar.title("Olympics Analysis")
 
 user_menu =st.sidebar.radio(
     'Select Option', 
-    ('Medal Tally', 'Overall Analysis','Country-Wise Analysis','Athlete wise Analysis')
+    ('Medal Tally','Country-Wise Analysis','Most Successful Athletes', 'Overall Analysis','Athlete wise Analysis')
 )
 
 
@@ -34,9 +34,10 @@ if user_menu == 'Medal Tally':
     st.subheader("**This data analysis tool covers 120 years of Olympic history (1896-2016). It offers the following features:**")
     st.write("***Select the option from left side-bar***")
     st.markdown('''1. :blue-background[MEDAL TALLY]: View country-wise and year-wise medal counts.''')
-    st.markdown('''2. :blue-background[OVERALL OLYMPIC ANALYSIS]: Explore the number of events, events over time, and identify the most successful athletes in each sport.  ''')
-    st.markdown('''3. :blue-background[COUNTRY-WISE ANALYSIS]:Track the performance of a specific country over the years and discover its most successful athletes.''')
-    st.markdown('''4. :blue-background[ATHELETE-WISE ANALYSIS]:  Analyze the age distribution of medalists, compare male vs. female participation, and examine height vs. weight trends.''')
+    st.markdown('''2. :blue-background[COUNTRY-WISE ANALYSIS]:Track the performance of a specific country over the years and discover its most successful athletes.''')
+    st.markdown('''3. :blue-background[MOST SUCCESSFUL ATHLETES]:Discover most successful athletes in particular sport.''')
+    st.markdown('''4. :blue-background[OVERALL OLYMPIC ANALYSIS]: Explore the number of events, events over time, and identify the most successful athletes in each sport.  ''')
+    st.markdown('''5. :blue-background[ATHELETE-WISE ANALYSIS]:  Analyze the age distribution of medalists, compare male vs. female participation, and examine height vs. weight trends.''')
     # st.text("This is mahesh")
     # temp_df = # df0 =df.drop_duplicates(subset=['City','Sport','Event','Medal','NOC','Year','Games'])
     temp_df = df_no_duplicate_medal[['region','Year','Gold','Silver','Bronze']]
@@ -58,6 +59,19 @@ if user_menu == 'Medal Tally':
     medal_tally = helper.fetch_medal_tally(selected_year,selected_country,temp_df)
     medal_tally.rename(columns = {'region':'Country'},inplace =True)
     st.table(medal_tally)
+
+if user_menu == 'Most Successfull Athletes':
+    st.title("Most successful Athletes")
+    sport_list = df['Sport'].unique().tolist()
+    sport_list.sort()
+    sport_list.remove('Swimming')
+    sport_list.insert(0,'Overall')
+    sport_list.insert(0,'Swimming')
+    st.header('Select Sport')
+    selected_sport = st.selectbox('',sport_list)
+    x = helper.most_successful(selected_sport,df)
+    st.table(x)
+    st.divider()
 
 
 
@@ -115,17 +129,6 @@ if user_menu == 'Overall Analysis':
     st.plotly_chart(fig)
     st.divider()
 
-    st.title("Most successful Athletes")
-    sport_list = df['Sport'].unique().tolist()
-    sport_list.sort()
-    sport_list.remove('Swimming')
-    sport_list.insert(0,'Overall')
-    sport_list.insert(0,'Swimming')
-    st.header('Select Sport')
-    selected_sport = st.selectbox('',sport_list)
-    x = helper.most_successful(selected_sport,df)
-    st.table(x)
-    st.divider()
 
     st.title("No of events over time (every sport)")
     st.subheader("The heatmap below shows the number of events that took place in each sport during different editions of the Olympics.")
