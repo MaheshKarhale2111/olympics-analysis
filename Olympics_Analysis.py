@@ -60,7 +60,7 @@ if user_menu == 'Medal Tally':
     medal_tally.rename(columns = {'region':'Country'},inplace =True)
     st.table(medal_tally)
 
-if user_menu == 'Most Successfull Athletes':
+if user_menu == 'Most Successful Athletes':
     st.title("Most successful Athletes")
     sport_list = df['Sport'].unique().tolist()
     sport_list.sort()
