@@ -48,7 +48,7 @@ if user_menu == 'Medal Tally':
     selected_country = st.sidebar.selectbox("Select Country",country)
     # medal_tally = helper.medal_tally(df)
     if selected_year == 'Overall' and selected_country == 'Overall' : 
-        st.title("Overall Tally (1996 - 2016)")
+        st.title("Overall Tally (1896 - 2016)")
     elif selected_year != 'Overall' and selected_country == 'Overall' : 
         st.title("Medal Tally in year " + str(selected_year))
     elif selected_year == 'Overall' and selected_country != 'Overall' :
