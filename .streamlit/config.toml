@@ -1,6 +1,5 @@
 [theme]
 primaryColor="#f5a21d"
-backgroundColor="#ecf3f7"
-secondaryBackgroundColor="#c9d9fb"
+backgroundColor="#f3f6f7"
+secondaryBackgroundColor="#d1def9"
 textColor="#000000"
-base = "custon theme"

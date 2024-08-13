@@ -41,7 +41,7 @@ def fetch_medal_tally(year, country,medal_df):
 
 def country_year_list(df): 
   years = df['Year'].unique().tolist()
-  years.sort()
+  years.sort(reverse = True)
   years.insert(0,'Overall')
 
 

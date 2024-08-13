@@ -48,6 +48,7 @@ if user_menu == 'Medal Tally':
     temp_df = df_no_duplicate_medal[['region','Year','Gold','Silver','Bronze']]
     st.sidebar.header("Medal Tally")
     years,country = helper.country_year_list(df)
+    
 
     selected_year = st.sidebar.selectbox("Select Year", years)
     selected_country = st.sidebar.selectbox("Select Country",country)
