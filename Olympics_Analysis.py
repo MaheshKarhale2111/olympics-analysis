@@ -16,8 +16,13 @@ wide_space_default()
 
 df = pd.read_csv('athlete_events.csv')
 region_df = pd.read_csv('noc_regions.csv')
+tokyo_df = pd.read_csv('2020 Tokyo extension.csv')
+
+old_df = df
+df = pd.concat([df,tokyo_df],axis=0)
 
 df = preprocessor.preprocess(df,region_df)
+old_df = preprocessor.preprocess(old_df,region_df)
 df_no_duplicate_medal = preprocessor.remove_duplicate_medals(df)
 
 st.sidebar.title("Olympics Analysis")
@@ -31,7 +36,7 @@ user_menu =st.sidebar.radio(
 # st.dataframe(df)
 
 if user_menu == 'Medal Tally':
-    st.subheader("**This data analysis tool covers 120 years of Olympic history (1896-2016). It offers the following features:**")
+    st.subheader("**This data analysis tool covers 124 years of Olympic history (1896-2020). It offers the following features:**")
     st.write("***Select the option from left side-bar***")
     st.markdown('''1. :blue-background[MEDAL TALLY]: View country-wise and year-wise medal counts.''')
     st.markdown('''2. :blue-background[COUNTRY-WISE ANALYSIS]:Track the performance of a specific country over the years and discover its most successful athletes.''')
@@ -48,7 +53,7 @@ if user_menu == 'Medal Tally':
     selected_country = st.sidebar.selectbox("Select Country",country)
     # medal_tally = helper.medal_tally(df)
     if selected_year == 'Overall' and selected_country == 'Overall' : 
-        st.title("Overall Tally (1896 - 2016)")
+        st.title("Overall Tally (1896 - 2020)")
     elif selected_year != 'Overall' and selected_country == 'Overall' : 
         st.title("Medal Tally in year " + str(selected_year))
     elif selected_year == 'Overall' and selected_country != 'Overall' :
@@ -79,7 +84,7 @@ if user_menu == 'Overall Analysis':
     editions =  df['Year'].unique().shape[0]
     cities =  df['City'].unique().shape[0]
     sports = df['Sport'].unique().shape[0]
-    events = df['Event'].unique().shape[0]
+    events = old_df['Event'].unique().shape[0]
     athletes = df['Name'].unique().shape[0]
     nations = df['region'].unique().shape[0]
     st.title("Overall Stats")
@@ -108,21 +113,21 @@ if user_menu == 'Overall Analysis':
 
     st.divider()
 
-    nations_over_time = helper.data_over_time(df,'region')
+    nations_over_time = helper.data_over_time(old_df,'region')
     nations_over_time.rename(columns={'count': 'No of Countries'},inplace=True)
     fig = px.line(nations_over_time, x="Year", y="No of Countries")
     st.title("Participating Nations Over Time")
     st.plotly_chart(fig)
     st.divider()
 
-    events_over_time = helper.data_over_time(df,'Event')
+    events_over_time = helper.data_over_time(old_df,'Event')
     events_over_time.rename(columns={'count': 'No of Events'},inplace=True)
     fig = px.line(events_over_time, x="Year", y="No of Events")
     st.title("No. of Events Over Time")
     st.plotly_chart(fig)
     st.divider()
 
-    athletes_over_time = helper.data_over_time(df,'Name')
+    athletes_over_time = helper.data_over_time(old_df,'Name')
     athletes_over_time.rename(columns={'count': 'No of Athletes'},inplace=True)
     fig = px.line(athletes_over_time, x="Year", y="No of Athletes")
     st.title("Participating Athletes Over Time")
@@ -170,7 +175,7 @@ if user_menu == 'Country-Wise Analysis' :
 if user_menu == 'Athlete wise Analysis': 
     st.title('Athlete wise Analysis')
     st.divider()
-    athelete_df = df.drop_duplicates(subset=['Name','region'])
+    athelete_df = old_df.drop_duplicates(subset=['Name','region'])
     x1 = athelete_df['Age'].dropna()
     x2 = athelete_df[athelete_df['Medal'] == 'Gold'] ['Age'].dropna()
     x3 = athelete_df[athelete_df['Medal'] == 'Silver'] ['Age'].dropna()
@@ -204,12 +209,12 @@ if user_menu == 'Athlete wise Analysis':
     st.divider()
 
     st.header("Men Vs Women Participation Over the Years")
-    final = helper.men_vs_women(df)
+    final = helper.men_vs_women(old_df)
     fig = px.line(final, x="Year", y=["Male", "Female"])
     fig.update_layout(autosize=False, width=1000, height=600)
     st.plotly_chart(fig)
 
-    sport_list = df['Sport'].unique().tolist()
+    sport_list = old_df['Sport'].unique().tolist()
     sport_list.remove('Aeronautics')
     sport_list.remove('Golf')
     sport_list.remove('Badminton')
@@ -221,7 +226,7 @@ if user_menu == 'Athlete wise Analysis':
     st.header('Height Vs Weight chart for specific sport')
     st.subheader('Select a sport')
     selected_sport = st.selectbox('', sport_list)
-    temp_df = helper.weight_v_height(df,selected_sport)
+    temp_df = helper.weight_v_height(old_df,selected_sport)
     fig,ax = plt.subplots()
     ax = sns.scatterplot(data = temp_df, x = 'Weight', y = 'Height',hue=temp_df['Medal'],style=temp_df['Sex'],s=40)
     st.pyplot(fig)

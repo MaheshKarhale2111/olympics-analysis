@@ -4,8 +4,11 @@ import streamlit as st
 
 
 
+
+
 def preprocess(df,region_df) : 
     #filtering out oympics happened in summer 
+    # df = pd.conta
     df = df[df['Season'] == 'Summer']
     # drop 1906 olympics as it's not official 
     df = df.drop(df[df['Year'] == 1906].index)
