@@ -22,10 +22,11 @@ old_df = df
 df = pd.concat([df,tokyo_df],axis=0)
 
 df = preprocessor.preprocess(df,region_df)
-old_df = preprocessor.preprocess(old_df,region_df)
+old_df = preprocessor.preprocess(old_df,region_df) 
 df_no_duplicate_medal = preprocessor.remove_duplicate_medals(df)
 
-st.sidebar.title("Olympics Analysis")
+# st.sidebar.title("Olympics Analysis")
+st.sidebar.image('logo.png')
 
 user_menu =st.sidebar.radio(
     'Select Option', 
