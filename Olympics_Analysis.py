@@ -30,20 +30,41 @@ st.sidebar.image('logo.png')
 
 user_menu =st.sidebar.radio(
     'Select Option', 
-    ('Medal Tally','Country-Wise Analysis','Most Successful Athletes', 'Overall Analysis','Athlete wise Analysis')
+    ('Medal Tally','Athlete wise Analysis','Country-Wise Analysis','Most Successful Athletes', 'Overall Analysis',)
 )
 
 
 # st.dataframe(df)
 
+# if user_menu == 'Quick Glance':
+#     # temp_df = df[['region','Total']]\
+#     temp_df = df_no_duplicate_medal[['region','Year','Gold','Silver','Bronze']]
+#     top_countries =  helper.fetch_medal_tally('Overall','Overall',temp_df)['region'][0:5]
+
+#     # st.table(temp_df)
+#     temp_df = temp_df[(temp_df.index.get_level_values('region').isin(top_countries))]
+#     st.table(temp_df)
+#     # medal_tally =temp_df.groupby(['region','Year']).sum()[['Gold','Silver','Bronze']]
+#     # medal_tally['Total'] = medal_tally['Gold'] + medal_tally['Bronze'] + medal_tally['Silver']
+#     # # medal_tally = medal_tally.sort_values('Total',ascending=False)[1:700]
+#     # st.table(medal_tally)
+
+
+#     fig,ax = plt.subplots(figsize =(25,40))
+#     # ax = sns.heatmap(, annot=True, fmt="d", cmap='Blues')
+#     # ax =sns.heatmap(medal_tally.pivot_table(columns='Year',index='region', values='Total' ,aggfunc='sum').fillna(0).astype(int),fmt = "d",annot=True,cmap = 'Blues')
+#     # # medal_tally = temp_df[['region','Total']]
+#     # st.pyplot(fig)
+
+
 if user_menu == 'Medal Tally':
     st.subheader("**This data analysis tool covers 124 years of Olympic history (1896-2020). It offers the following features:**")
     st.write("***Select the option from left side-bar***")
     st.markdown('''1. :blue-background[MEDAL TALLY]: View country-wise and year-wise medal counts.''')
-    st.markdown('''2. :blue-background[COUNTRY-WISE ANALYSIS]:Track the performance of a specific country over the years and discover its most successful athletes.''')
+    st.markdown('''2. :blue-background[athlete-WISE ANALYSIS]:  Analyze the age distribution of medalists, compare male vs. female participation, and examine height vs. weight trends.''')
     st.markdown('''3. :blue-background[MOST SUCCESSFUL ATHLETES]:Discover most successful athletes in particular sport.''')
     st.markdown('''4. :blue-background[OVERALL OLYMPIC ANALYSIS]: Explore the number of events, events over time, and identify the most successful athletes in each sport.  ''')
-    st.markdown('''5. :blue-background[ATHELETE-WISE ANALYSIS]:  Analyze the age distribution of medalists, compare male vs. female participation, and examine height vs. weight trends.''')
+    st.markdown('''5. :blue-background[COUNTRY-WISE ANALYSIS]:Track the performance of a specific country over the years and discover its most successful athletes.''')
     # st.text("This is mahesh")
     # temp_df = # df0 =df.drop_duplicates(subset=['City','Sport','Event','Medal','NOC','Year','Games'])
     temp_df = df_no_duplicate_medal[['region','Year','Gold','Silver','Bronze']]
@@ -115,6 +136,14 @@ if user_menu == 'Overall Analysis':
 
     st.divider()
 
+    st.title("No of events over time (every sport)")
+    st.subheader("The heatmap below shows the number of events that took place in each sport during different editions of the Olympics.")
+    st.markdown(''':red-background[Funfact] :  Cricket was included in the Olympics in 1900, marking its only appearance in the Olympics. It's set to make a comeback in the 2028 Los Angeles Olympics.''')
+    x = df.drop_duplicates(['Year','Event', 'Sport'])[['Year','Event','Sport']]
+    fig,ax = plt.subplots(figsize = (25,20))
+    ax = sns.heatmap(x.pivot_table(index='Sport',columns='Year',values='Event',aggfunc='count').fillna(0).astype('int'), annot= True,cmap = 'Blues')
+    st.pyplot(fig)
+
     nations_over_time = helper.data_over_time(old_df,'region')
     nations_over_time.rename(columns={'count': 'No of Countries'},inplace=True)
     fig = px.line(nations_over_time, x="Year", y="No of Countries")
@@ -137,26 +166,21 @@ if user_menu == 'Overall Analysis':
     st.divider()
 
 
-    st.title("No of events over time (every sport)")
-    st.subheader("The heatmap below shows the number of events that took place in each sport during different editions of the Olympics.")
-    st.markdown(''':red-background[Funfact] :  Cricket was included in the Olympics in 1900, marking its only appearance in the Olympics. It's set to make a comeback in the 2028 Los Angeles Olympics.''')
-    x = df.drop_duplicates(['Year','Event', 'Sport'])[['Year','Event','Sport']]
-    fig,ax = plt.subplots(figsize = (25,20))
-    ax = sns.heatmap(x.pivot_table(index='Sport',columns='Year',values='Event',aggfunc='count').fillna(0).astype('int'), annot= True,cmap = 'Blues')
-    st.pyplot(fig)
+    
 
 
 if user_menu == 'Country-Wise Analysis' : 
     st.title('Country-Wise Analysis')
+    st.markdown('''***Select a country from left sidebar***''')
     st.divider()
     year,country = helper.country_year_list(df)
     country.remove('Overall')
     selected_country = st.sidebar.selectbox('Select a country',country)
     country_over_time = helper.yearwise_medal_analysis(df_no_duplicate_medal,selected_country)
 
-    fig = px.line(country_over_time, x="Year", y="Total Medals")
-    st.header(selected_country +"'s Olympic performance over the years")
-    st.plotly_chart(fig)
+    st.header('Most successful athletes in '+ selected_country)
+    most_successful = helper.most_successful_in_country(selected_country,df)
+    st.table(most_successful)
     st.divider()
 
     st.header(selected_country + "'s sport-wise analysis over the years")
@@ -168,53 +192,46 @@ if user_menu == 'Country-Wise Analysis' :
     st.pyplot(fig)
     st.divider()
 
-    st.header('Most successful atheletes in '+ selected_country)
-    most_successful = helper.most_successful_in_country(selected_country,df)
-    st.table(most_successful)
+    fig = px.line(country_over_time, x="Year", y="Total Medals")
+    st.header(selected_country +"'s Olympic performance over the years")
+    st.plotly_chart(fig)
     st.divider()
+
+    
 
 
 if user_menu == 'Athlete wise Analysis': 
+
     st.title('Athlete wise Analysis')
     st.divider()
-    athelete_df = old_df.drop_duplicates(subset=['Name','region'])
-    x1 = athelete_df['Age'].dropna()
-    x2 = athelete_df[athelete_df['Medal'] == 'Gold'] ['Age'].dropna()
-    x3 = athelete_df[athelete_df['Medal'] == 'Silver'] ['Age'].dropna()
-    x4 = athelete_df[athelete_df['Medal'] == 'Bronze'] ['Age'].dropna()
-    fig = ff.create_distplot([x1,x2,x3,x4],['Overall Age', 'Gold Medalist', 'Silver Medalist','Bronze Medalist'],show_hist=False,show_rug=False)
-    fig.update_layout(autosize = False,width = 1000,height = 600)
-    st.header('Age Distribution')
-    st.plotly_chart(fig)
 
-    st.divider()
+    athlete_df = old_df.drop_duplicates(subset=['Name','region'])
 
     x = []
     name = []
-    famous_sports = ['Basketball', 'Judo', 'Football', 'Athletics',
-                     'Swimming', 'Badminton', 'Gymnastics',
-                     'Art Competitions', 'Handball', 'Weightlifting', 'Wrestling', 'Hockey',
-                     'Shooting', 'Boxing', 'Taekwondo', 'Cycling', 'Diving',
-                     'Tennis', 'Golf', 'Archery',
-                     'Volleyball', 'Table Tennis', 'Baseball',
-                     'Rhythmic Gymnastics', 'Rugby Sevens', 'Ice Hockey']
-    for sport in famous_sports:
-        temp_df = athelete_df[athelete_df['Sport'] == sport]
-        x.append(temp_df[temp_df['Medal'] == 'Gold']['Age'].dropna())
-        name.append(sport)
+    # selected_sports = ['Basketball', 'Football', 'Swimming', 'Athletics', 'Gymnastics']
+    selected_sports = ['Basketball', 'Football', 'Athletics',
+                 'Swimming', 'Badminton', 'Gymnastics',
+                 'Art Competitions', 'Weightlifting', 'Wrestling', 'Hockey',
+                 'Shooting', 'Cycling', 'Diving',
+                 'Tennis', 'Golf', 'Archery',
+                 'Volleyball', 'Table Tennis', 'Baseball',
+                 'Rhythmic Gymnastics', 'Rugby Sevens', 'Ice Hockey']
 
-    fig = ff.create_distplot(x, name, show_hist=False, show_rug=False)
-    fig.update_layout(autosize=False, width=1000, height=600)
-    st.header("Distribution of Age with respect to Sports (Gold Medalists)")
+    # Filter the dataset for the selected sports and only Gold Medalists
+    filtered_df = athlete_df[(athlete_df['Sport'].isin(selected_sports)) & 
+                            (athlete_df['Medal'] == 'Gold')]
+
+    # Create the box plot
+    fig = px.box(filtered_df, x='Sport', y='Age', color='Sport',
+                category_orders={"Sport": selected_sports})
+
+    fig.update_layout(autosize=False, width=1300, height=550)
+
+    st.header("Age Distribution of Gold Medalists by Selected Sports")
     st.plotly_chart(fig)
 
     st.divider()
-
-    st.header("Men Vs Women Participation Over the Years")
-    final = helper.men_vs_women(old_df)
-    fig = px.line(final, x="Year", y=["Male", "Female"])
-    fig.update_layout(autosize=False, width=1000, height=600)
-    st.plotly_chart(fig)
 
     sport_list = old_df['Sport'].unique().tolist()
     sport_list.remove('Aeronautics')
@@ -232,6 +249,27 @@ if user_menu == 'Athlete wise Analysis':
     fig,ax = plt.subplots()
     ax = sns.scatterplot(data = temp_df, x = 'Weight', y = 'Height',hue=temp_df['Medal'],style=temp_df['Sex'],s=40)
     st.pyplot(fig)
+
+    st.divider()
+   
+    x1 = athlete_df['Age'].dropna()
+    x2 = athlete_df[athlete_df['Medal'] == 'Gold'] ['Age'].dropna()
+    x3 = athlete_df[athlete_df['Medal'] == 'Silver'] ['Age'].dropna()
+    x4 = athlete_df[athlete_df['Medal'] == 'Bronze'] ['Age'].dropna()
+    fig = ff.create_distplot([x1,x2,x3,x4],['Overall Age', 'Gold Medalist', 'Silver Medalist','Bronze Medalist'],show_hist=False,show_rug=False)
+    fig.update_layout(autosize = False,width = 1000,height = 600)
+    st.header('Age Distribution')
+    st.plotly_chart(fig)
+
+    st.divider()
+
+    st.header("Men Vs Women Participation Over the Years")
+    final = helper.men_vs_women(old_df)
+    fig = px.line(final, x="Year", y=["Male", "Female"])
+    fig.update_layout(autosize=False, width=1000, height=600)
+    st.plotly_chart(fig)
+
+   
 
     st.divider()
 
